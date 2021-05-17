@@ -54,6 +54,7 @@
      sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
 
      ### Install Docker
+  
      
      sudo yum remove -y docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine docker-ce docker-ce-cli containerd.io
      sudo yum install -y yum-utils device-mapper-persistent-data lvm2
@@ -61,6 +62,31 @@
      sudo yum install -y docker-ce docker-ce-cli containerd.io
      systemctl enable --now docker
      systemctl start docker
+-----for AWS linux install docker-----
+		
+1. yum update
+2. yum install docker
+		
+3. Configure the Docker daemon, in particular to use systemd for the management of the container’s cgroups.
+
+4. sudo mkdir /etc/docker
+cat <<EOF | sudo tee /etc/docker/daemon.json
+{
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m"
+  },
+  "storage-driver": "overlay2"
+}
+EOF
+
+4. Restart Docker and enable on boot:
+
+sudo systemctl enable docker
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+
 
      ### Install kubeadm,kubelet,kubectl
      
